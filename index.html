@@ -66,7 +66,7 @@ try{Object.assign(S,JSON.parse(localStorage.getItem(KEY)||"{}"))}catch(e){}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
-const imgOk=u=>typeof u==="string"&&u.startsWith("https://upload.wikimedia.org/");
+const imgOk=u=>typeof u==="string"&&(u.startsWith("https://upload.wikimedia.org/")||u.startsWith("https://commons.wikimedia.org/wiki/Special:FilePath/"));
 let view="draw",last=null,det=null,rv=null,busy=false,note="";
 const owned=()=>Object.keys(S.owned).filter(k=>S.cards[k]);
 const today=()=>new Date().toLocaleDateString("sv");
@@ -74,6 +74,18 @@ const packs=()=>5-(S.day&&S.day.d===today()?S.day.n:0);
 const use=()=>{if(!S.day||S.day.d!==today())S.day={d:today(),n:0};S.day.n++};
 const left=()=>NAMES.filter(n=>!S.done.includes(n)).length;
 async function J(u){const r=await fetch(u);if(!r.ok)throw new Error("HTTP "+r.status);return r.json()}
+async function findImg(q,sci){
+ try{
+  const cl=(await J(`https://www.wikidata.org/w/api.php?action=wbgetentities&ids=${q}&props=claims&format=json&origin=*`)).entities[q].claims||{};
+  const f=cl.P18?.[0]?.mainsnak?.datavalue?.value;
+  if(f)return "https://commons.wikimedia.org/wiki/Special:FilePath/"+encodeURIComponent(f)+"?width=400";
+ }catch(e){}
+ try{
+  const e=await J("https://en.wikipedia.org/api/rest_v1/page/summary/"+encodeURIComponent(sci.replace(/ /g,"_")));
+  if(imgOk(e.thumbnail?.source))return e.thumbnail.source;
+ }catch(e){}
+ return "";
+}
 async function build(name){
  const w=await J("https://fr.wikipedia.org/api/rest_v1/page/summary/"+encodeURIComponent(name.replace(/ /g,"_")));
  if(w.type==="disambiguation"||!w.wikibase_item)throw new Error("page inutilisable");
@@ -92,10 +104,12 @@ async function build(name){
    for(let i=0;i<(n?2:0);i++){const o=await J(B+`&limit=100&offset=${Math.floor(Math.random()*m)}`);pts=pts.concat(o.results.map(r=>[r.decimalLatitude,r.decimalLongitude]).filter(p=>isFinite(p[0])&&isFinite(p[1])))}
   }
  }catch(e){}
+ let img=imgOk(w.thumbnail?.source)?w.thumbnail.source:"";
+ if(!img)img=await findImg(q,sci);
  const ok=g.matchType==="EXACT"&&!!g.usageKey;
  const src=[["Wikipédia",w.content_urls?.desktop?.page||"https://fr.wikipedia.org"],["Wikidata","https://www.wikidata.org/wiki/"+q]];
  if(g.usageKey)src.push(["GBIF","https://www.gbif.org/species/"+g.usageKey]);
- return{k:sci.toLowerCase(),fr:w.title,sci,desc:w.description||"",ex:(w.extract||"").slice(0,450),img:imgOk(w.thumbnail?.source)?w.thumbnail.source:"",cl:[g.class,g.order,g.family].filter(Boolean).join(" › ")||"—",u,pts,ok,
+ return{k:sci.toLowerCase(),fr:w.title,sci,desc:w.description||"",ex:(w.extract||"").slice(0,450),img,cl:[g.class,g.order,g.family].filter(Boolean).join(" › ")||"—",u,pts,ok,
   note:ok?"Nom scientifique confirmé par Wikidata et GBIF.":`À vérifier : GBIF ne confirme pas exactement ce nom (${g.matchType||"aucune correspondance"}).`,src};
 }
 const map=c=>`<svg class="map" viewBox="0 0 360 180" role="img" aria-label="Carte des observations"><rect width="360" height="180" class="sea"/>${LAND}${(c.pts||[]).map(p=>`<circle class="dot" cx="${p[1]+180}" cy="${90-p[0]}" r="2.2" opacity=".7"/>`).join("")}</svg>`;
@@ -172,5 +186,6 @@ document.addEventListener("click",e=>{
  }
  render();window.scrollTo(0,0);
 });
+(async()=>{let ch=0;for(const k of Object.keys(S.cards)){const c=S.cards[k];if(!c.img&&!c.tried){c.tried=1;const u=await findImg(c.src[1][1].split("/").pop(),c.sci);if(u){c.img=u;ch=1}}}save();if(ch)render()})();
 render();
 </script></body></html>
