@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ZooDex – Apprendre la zoologie par cartes</title>
+<style>
+:root{--bg:#edf2f1;--sf:#fff;--tx:#12262b;--mu:#587078;--br:#cdd9d8;--ac:#0f766e;--on:#fff;--land:#c5d6cf;--sea:#e2edf2;--c:#2f7d4f;--r:#2a6fb0;--e:#8a3fb5;--bad:#b4483a;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1a1d;--sf:#16272b;--tx:#e6f0ee;--mu:#93aaa8;--br:#2a4044;--ac:#3ec1b3;--on:#06201d;--land:#2c4a46;--sea:#112328;--c:#5bc28a;--r:#6aa9e6;--e:#c68af0;--bad:#e5877a}}
+:root[data-theme="dark"]{--bg:#0e1a1d;--sf:#16272b;--tx:#e6f0ee;--mu:#93aaa8;--br:#2a4044;--ac:#3ec1b3;--on:#06201d;--land:#2c4a46;--sea:#112328;--c:#5bc28a;--r:#6aa9e6;--e:#c68af0;--bad:#e5877a}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:520px;margin:0 auto;padding:16px}
+h1{font:700 26px/1.1 Georgia,"Times New Roman",serif;margin:4px 0 2px}
+.sub{color:var(--mu);margin:0 0 14px;font-size:14px}
+nav{display:flex;gap:6px;background:var(--sf);border:1px solid var(--br);border-radius:12px;padding:4px;margin-bottom:16px}
+nav button{flex:1;border:0;background:none;color:var(--mu);font:inherit;font-weight:600;padding:9px 4px;border-radius:9px;cursor:pointer}
+nav button.on{background:var(--ac);color:var(--on)}
+button{font:inherit}
+.btn{border:0;background:var(--ac);color:var(--on);font-weight:700;padding:13px 18px;border-radius:12px;width:100%;cursor:pointer;margin-top:10px}
+.btn.alt{background:var(--sf);color:var(--tx);border:1px solid var(--br)}
+.btn.bad{background:var(--bad);color:#fff}
+.row{display:flex;gap:10px}
+.card{background:var(--sf);border:2px solid var(--br);border-radius:18px;padding:16px;animation:in .35s ease-out}
+.card.c{border-color:var(--c)}.card.r{border-color:var(--r)}.card.e{border-color:var(--e)}
+@keyframes in{from{transform:rotateY(70deg) scale(.9);opacity:0}to{transform:none;opacity:1}}
+.top{display:flex;justify-content:space-between;align-items:center}
+.em{font-size:44px;line-height:1}
+.badge{font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px;border:1.5px solid currentColor}
+.badge.c{color:var(--c)}.badge.r{color:var(--r)}.badge.e{color:var(--e)}
+.card h2{font:700 24px/1.2 Georgia,serif;margin:8px 0 0}
+.sci{color:var(--mu);font-family:Georgia,serif}
+.map{width:100%;height:auto;display:block;border-radius:10px;margin:12px 0 6px}
+.sea{fill:var(--sea)}.land{fill:var(--land)}
+.dot{fill:var(--bad)}.pulse{fill:var(--bad);transform-box:fill-box;transform-origin:center;animation:p 1.6s ease-out infinite}
+@keyframes p{from{transform:scale(.4);opacity:.8}to{transform:scale(1.8);opacity:0}}
+.loc{font-weight:600;margin-bottom:8px}
+dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:14px}
+dt{color:var(--mu)}dd{margin:0}
+.fact{background:var(--bg);border-radius:10px;padding:10px 12px;font-size:14px;margin:12px 0 0}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.tile{background:var(--sf);border:2px solid var(--br);border-radius:12px;padding:10px 4px;text-align:center;font-size:12px;cursor:pointer;color:var(--tx);min-height:96px}
+.tile.c{border-color:var(--c)}.tile.r{border-color:var(--r)}.tile.e{border-color:var(--e)}
+.tile.lock{opacity:.5;cursor:default;border-style:dashed;border-color:var(--br)}
+.tile b{display:block;font-size:28px;font-weight:400}
+.msg{text-align:center;color:var(--mu);padding:24px 8px}
+.prog{display:flex;justify-content:space-between;color:var(--mu);font-size:14px;margin-bottom:8px}
+.q{font-weight:600;margin:6px 0}
+:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){.card,.pulse{animation:none}}
+.ph{width:100%;max-height:240px;object-fit:cover;border-radius:10px;margin:12px 0 0;display:block}.lnk{display:inline-block;margin:10px 14px 0 0;color:var(--ac);font-weight:600;font-size:14px}.up{display:inline-block;width:auto;padding:8px 12px;font-size:14px;margin:8px 0 0}
+.spk{border:1px solid var(--br);background:var(--sf);color:var(--tx);border-radius:99px;padding:3px 12px;font-size:13px;margin:6px 6px 0 0;cursor:pointer}
+.ok{color:var(--c);font-size:14px;margin:10px 0 0}.warn{color:var(--bad);font-size:14px;margin:10px 0 0}.srcs{margin-top:6px}.thumb{width:100%;height:60px;object-fit:cover;border-radius:8px;display:block;margin-bottom:4px}
+</style></head><body><main>
+<h1>ZooDex</h1><p class="sub" id="st"></p>
+<nav id="nav"></nav><div id="app"></div>
+<p class="sub">Données : Wikipédia (CC BY-SA), Wikidata (CC0), GBIF.</p></main>
+<script>
+const KEY="zoodex-gh-v1",IV=[0,1,3,7,14];
+const IU={Q211005:"LC",Q719675:"NT",Q278113:"VU",Q11394:"EN",Q219127:"CR",Q239509:"EW",Q237350:"EX",Q3245245:"DD"};
+const UL={LC:"Préoccupation mineure",NT:"Quasi menacé",VU:"Vulnérable",EN:"En danger",CR:"En danger critique",EW:"Éteint à l’état sauvage",EX:"Éteint",DD:"Données insuffisantes"};
+const RK=u=>({LC:["Commune","c"],NT:["Rare","r"],VU:["Rare","r"],EN:["Épique","e"],CR:["Épique","e"]})[u]||["Commune","c"];
+const LAND='<path class="land" d="M20,35L60,15L110,20L120,40L100,60L85,75L75,85L60,70L40,55Z M115,12L145,10L140,30L125,35Z M80,95L105,92L125,105L115,135L95,165L88,140L80,115Z M165,35L195,30L205,45L185,55L165,55Z M165,60L200,58L215,85L205,115L190,130L175,110L160,85Z M200,25L300,20L330,45L300,75L270,95L245,85L225,70L205,55Z M280,115L320,112L330,135L300,142L282,130Z M20,165L340,165L340,180L20,180Z"/>';
+const NAMES=["Lion", "Éléphant d’Afrique", "Panda géant", "Tigre du Bengale", "Loup gris", "Ours polaire", "Kangourou roux", "Manchot empereur", "Gorille des montagnes", "Paresseux à trois doigts", "Jaguar", "Orang-outan de Bornéo", "Koala", "Girafe", "Guépard", "Hippopotame", "Rhinocéros blanc", "Zèbre des plaines", "Fennec", "Maki catta", "Chimpanzé commun", "Loutre de mer", "Baleine bleue", "Grand dauphin", "Grand requin blanc", "Poisson-clown", "Hippocampe à ventre jaune", "Tortue luth", "Crocodile du Nil", "Dragon de Komodo", "Caméléon commun", "Grenouille rousse", "Dendrobate à tapirer", "Axolotl", "Aigle royal", "Chouette effraie", "Flamant rose", "Colibri à gorge rubis", "Condor des Andes", "Papillon monarque", "Poulpe commun", "Cerf élaphe", "Accenteur mouchet", "Addax", "Agame aquatique", "Agame barbu", "Aigle à tête blanche", "Aigle australien", "Aigle des Philippines", "Aigle harpie", "Alligator d’Amérique", "Alligator de Chine", "Alouette des champs", "Ambystome maculé", "Ambystome marbré", "Ambystome tigré", "Antilocapre", "Antilope à nez tacheté", "Antilope cervicapre", "Ara ararauna", "Ara hyacinthe", "Ara macao", "Ara rouge", "Autruche d’Afrique", "Babouin anubis", "Babouin chacma", "Babouin de Guinée", "Babouin hamadryas", "Babouin jaune", "Baleine à bosse", "Basilic vert", "Bec-croisé des sapins", "Bec-en-sabot du Nil", "Belette d’Europe", "Béluga", "Bergeronnette grise", "Bergeronnette des ruisseaux", "Bergeronnette printanière", "Bison d’Amérique", "Bison d’Europe", "Blaireau européen", "Bœuf musqué", "Bonobo", "Bouquetin des Alpes", "Bouvreuil pivoine", "Bouvreuil trompetteur", "Bruant des roseaux", "Bruant jaune", "Bubale roux", "Buffle d’Afrique", "Capybara", "Cacatoès à huppe jaune", "Cacatoès rosalbin", "Cachalot", "Caïman à lunettes", "Caïman noir", "Capucin à face blanche", "Capucin moine", "Carcajou", "Casoar à casque", "Castor du Canada", "Cerf de Virginie", "Chacal à chabraque", "Chameau de Bactriane", "Chamois", "Chardonneret élégant", "Chat des déserts de Chine", "Chat doré de Bornéo", "Chat sauvage", "Chevreuil d’Europe", "Choucas des tours", "Chouette hulotte", "Cincle plongeur", "Coati à nez blanc", "Coati roux", "Cobra royal", "Corbeau freux", "Corneille noire", "Coucou gris", "Couleuvre à collier", "Couleuvre vipérine", "Coyote", "Crapaud cornu", "Crapaud rouge de Madagascar", "Crocodile américain", "Crocodile marin", "Crocodile nain", "Fossa", "Dhole", "Daman des rochers", "Diable de Tasmanie", "Dingo", "Dragon barbu", "Dragon d’eau chinois", "Dromadaire", "Dugong", "Écureuil roux", "Éléphant d’Asie", "Éléphant de forêt d’Afrique", "Éléphant de mer du Nord", "Éléphant de mer du Sud", "Émeu d’Australie", "Étourneau sansonnet", "Faucon pèlerin", "Fauvette à tête noire", "Fauvette des jardins", "Fauvette grisette", "Faux-gavial de Malaisie", "Fouine d’Europe", "Numbat", "Gaur", "Gavial du Gange", "Gazelle de Thomson", "Geai des chênes", "Gecko à crête", "Gecko à frange", "Gecko tokay", "Gélada", "Gemsbok", "Géocoucou de Californie", "Gibbon à mains blanches", "Gibbon lar", "Gibbon de Müller", "Siamang", "Glouton", "Gnou bleu", "Gnou noir", "Gorille de l’Est", "Gorille de l’Ouest", "Grand-duc d’Europe", "Grand koudou", "Grand requin-marteau", "Grenouille tomate", "Grimpereau des jardins", "Grimpereau des bois", "Grive draine", "Grive litorne", "Grive mauvis", "Grive musicienne", "Gros-bec casse-noyaux", "Grue couronnée", "Guanaco", "Guêpier d’Europe", "Gypaète barbu", "Harfang des neiges", "Harpie féroce", "Hérisson d’Europe", "Hermine", "Hirondelle rustique", "Hirondelle de fenêtre", "Huppe fasciée", "Hurleur noir", "Hurleur roux", "Hyène tachetée", "Hypolaïs polyglotte", "Iguane vert", "Iguane marin des Galapagos", "Iguane rhinocéros", "Iguane terrestre des Galapagos", "Impala", "Jaseur boréal", "Kangourou gris", "Kookaburra", "Kokoï de Colombie", "Léopard", "Léopard de mer", "Léopard des neiges", "Léopard nébuleux", "Lézard à collerette", "Lézard cornu du Texas", "Lézard Jésus-Christ", "Loriot d’Europe", "Loup à crinière", "Loup arctique", "Loutre géante", "Lynx boréal", "Lynx du Canada", "Lynx roux", "Macareux moine", "Marabout d’Afrique", "Marmotte des Alpes", "Martin-pêcheur d’Europe", "Martinet noir", "Martre des pins", "Merle noir", "Mésange azurée", "Mésange bleue", "Mésange charbonnière", "Mésange huppée", "Mésange noire", "Mésange nonnette", "Messager sagittaire", "Moineau domestique", "Moineau friquet", "Moloch hérissé", "Monstre de Gila", "Morse", "Mouffette rayée", "Narval", "Nasique", "Nyala", "Ocelot", "Okapi", "Orang-outan de Sumatra", "Orang-outan de Tapanuli", "Oréotrague", "Ornithorynque", "Orque", "Orvet fragile", "Oryx gazelle", "Ours à lunettes", "Ours brun", "Panda roux", "Panthère nébuleuse", "Paresseux à gorge brune", "Pélican brun", "Perentie", "Phacochère commun", "Phalanger volant", "Phoque commun", "Phoque gris", "Phoque léopard", "Phyllobate terrible", "Pic noir", "Pie bavarde", "Pigeon biset", "Pigeon ramier", "Pinson des arbres", "Pipit farlouse", "Pipit des arbres", "Planeur de sucre", "Pouillot véloce", "Pouillot fitis", "Pouillot de Bonelli", "Propithèque de Coquerel", "Puma", "Python vert arboricole", "Quokka", "Ragondin", "Rainette verte", "Rainette de White", "Raton laveur", "Renard arctique", "Renard des sables", "Renard roux", "Requin baleine", "Rhinocéros noir", "Roitelet huppé", "Roitelet triple-bandeau", "Rossignol philomèle", "Rouge-gorge familier", "Rougequeue à front blanc", "Rougequeue noir", "Rousserolle effarvatte", "Rousserolle turdoïde", "Saïga", "Salamandre tachetée", "Salamandre noire", "Salamandre géante de Chine", "Sambar", "Sanglier", "Serval", "Sittelle torchepot", "Springbok", "Sterne arctique", "Suricate", "Taïpan du désert", "Tamanoir", "Tapir de Baird", "Tapir malais", "Tapir du Brésil", "Tarente de Maurétanie", "Tigre", "Torcol fourmilier", "Tortue caouanne", "Tortue géante des Galapagos", "Tortue olivâtre", "Tortue verte", "Toucan toco", "Tourterelle des bois", "Tourterelle turque", "Traquet motteux", "Triton alpestre", "Troglodyte mignon", "Varan des savanes", "Vari noir et blanc", "Vari roux", "Vautour fauve", "Verdier d’Europe", "Vigogne", "Wallaby de Bennett", "Wallaby de Parma", "Wallaby à cou rouge", "Wapiti", "Wombat commun", "Zèbre de Grévy", "Zèbre de montagne"];
+let S={cards:{},owned:{},done:[],day:null};
+try{Object.assign(S,JSON.parse(localStorage.getItem(KEY)||"{}"))}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const $=id=>document.getElementById(id);
+const esc=v=>String(v??"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
+const imgOk=u=>typeof u==="string"&&u.startsWith("https://upload.wikimedia.org/");
+let view="draw",last=null,det=null,rv=null,busy=false,note="";
+const owned=()=>Object.keys(S.owned).filter(k=>S.cards[k]);
+const today=()=>new Date().toLocaleDateString("sv");
+const packs=()=>5-(S.day&&S.day.d===today()?S.day.n:0);
+const use=()=>{if(!S.day||S.day.d!==today())S.day={d:today(),n:0};S.day.n++};
+const left=()=>NAMES.filter(n=>!S.done.includes(n)).length;
+async function J(u){const r=await fetch(u);if(!r.ok)throw new Error("HTTP "+r.status);return r.json()}
+async function build(name){
+ const w=await J("https://fr.wikipedia.org/api/rest_v1/page/summary/"+encodeURIComponent(name.replace(/ /g,"_")));
+ if(w.type==="disambiguation"||!w.wikibase_item)throw new Error("page inutilisable");
+ const q=w.wikibase_item;
+ const cl=(await J(`https://www.wikidata.org/w/api.php?action=wbgetentities&ids=${q}&props=claims&format=json&origin=*`)).entities[q].claims||{};
+ const sci=cl.P225?.[0]?.mainsnak?.datavalue?.value;
+ if(!sci)throw new Error("pas un taxon");
+ const u=IU[cl.P141?.[0]?.mainsnak?.datavalue?.value?.id]||"";
+ const g=await J("https://api.gbif.org/v1/species/match?name="+encodeURIComponent(sci));
+ if(g.kingdom!=="Animalia")throw new Error("pas un animal");
+ let pts=[];
+ try{
+  if(g.usageKey){
+   const B=`https://api.gbif.org/v1/occurrence/search?taxonKey=${g.usageKey}&hasCoordinate=true&hasGeospatialIssue=false`;
+   const n=(await J(B+"&limit=0")).count||0,m=Math.max(0,Math.min(n,99000)-100);
+   for(let i=0;i<(n?2:0);i++){const o=await J(B+`&limit=100&offset=${Math.floor(Math.random()*m)}`);pts=pts.concat(o.results.map(r=>[r.decimalLatitude,r.decimalLongitude]).filter(p=>isFinite(p[0])&&isFinite(p[1])))}
+  }
+ }catch(e){}
+ const ok=g.matchType==="EXACT"&&!!g.usageKey;
+ const src=[["Wikipédia",w.content_urls?.desktop?.page||"https://fr.wikipedia.org"],["Wikidata","https://www.wikidata.org/wiki/"+q]];
+ if(g.usageKey)src.push(["GBIF","https://www.gbif.org/species/"+g.usageKey]);
+ return{k:sci.toLowerCase(),fr:w.title,sci,desc:w.description||"",ex:(w.extract||"").slice(0,450),img:imgOk(w.thumbnail?.source)?w.thumbnail.source:"",cl:[g.class,g.order,g.family].filter(Boolean).join(" › ")||"—",u,pts,ok,
+  note:ok?"Nom scientifique confirmé par Wikidata et GBIF.":`À vérifier : GBIF ne confirme pas exactement ce nom (${g.matchType||"aucune correspondance"}).`,src};
+}
+const map=c=>`<svg class="map" viewBox="0 0 360 180" role="img" aria-label="Carte des observations"><rect width="360" height="180" class="sea"/>${LAND}${(c.pts||[]).map(p=>`<circle class="dot" cx="${p[1]+180}" cy="${90-p[0]}" r="2.2" opacity=".7"/>`).join("")}</svg>`;
+const spk=c=>"speechSynthesis" in window?`<button class="spk" data-a="say" data-k="${esc(c.k)}" data-l="fr-FR">🔊 Français</button><button class="spk" data-a="say" data-k="${esc(c.k)}" data-l="it-IT">🔊 Latin</button>`:"";
+const card=c=>{const[n,k]=RK(c.u);return `<div class="card ${k}"><div class="top"><h2>${esc(c.fr)}</h2><span class="badge ${k}">${n}</span></div><i class="sci">${esc(c.sci)}</i><div>${spk(c)}</div>${c.img?`<img class="ph" src="${esc(c.img)}" alt="${esc(c.fr)}" loading="lazy">`:""}${map(c)}<div class="loc">📍 Observations GBIF (échantillon)</div><dl><dt>Type</dt><dd>${esc(c.desc||"—")}</dd><dt>Classification</dt><dd>${esc(c.cl)}</dd><dt>Statut UICN</dt><dd>${c.u?UL[c.u]+" ("+c.u+")":"Non renseigné"}</dd></dl><p class="fact">${esc(c.ex)}</p><p class="${c.ok?"ok":"warn"}">${c.ok?"✅":"⚠️"} ${esc(c.note)}</p><div class="srcs">Sources : ${c.src.map(([t,u])=>`<a class="lnk" target="_blank" rel="noopener noreferrer" href="${esc(u)}">${t}</a>`).join("")}</div></div>`};
+function speak(k,l){const c=S.cards[k];if(!c||!window.speechSynthesis)return;const u=new SpeechSynthesisUtterance(c.sci);u.lang=l;u.rate=.8;speechSynthesis.cancel();speechSynthesis.speak(u)}
+async function draw(){
+ if(busy)return;
+ if(packs()<1){note="Limite atteinte : 5 boosters par jour. Reviens demain.";return render()}
+ busy=true;note="";last=null;render();
+ for(let t=0;t<5;t++){
+  const g=NAMES.filter(n=>!S.done.includes(n));
+  if(!g.length){note="Tous les animaux de la liste sont découverts.";break}
+  const n=g[Math.floor(Math.random()*g.length)];
+  try{
+   const c=await build(n);S.done.push(n);
+   if(S.cards[c.k])continue;
+   S.cards[c.k]=c;S.owned[c.k]={b:1,d:0};use();last=c.k;break;
+  }catch(e){
+   if(e instanceof TypeError){note="Connexion impossible aux sources. Réessaie.";break}
+   S.done.push(n);
+  }
+ }
+ if(!last&&!note)note="Aucune fiche n’a pu être chargée. Réessaie.";
+ save();busy=false;render();
+}
+function startRev(all){const n=Date.now();const q=owned().filter(k=>all||S.owned[k].d<=n).sort(()=>Math.random()-.5);rv={q,i:0,show:false,t:Math.random()<.5?0:1,ok:0,tot:q.length}}
+function render(){
+ const o=owned().length;
+ $("st").textContent=`${o} fiches obtenues · ${left()} à découvrir`;
+ $("nav").innerHTML=[["draw","Tirage"],["col","Collection"],["rev","Révision"]].map(([v,t])=>`<button data-a="tab" data-v="${v}" class="${view===v?"on":""}">${t}</button>`).join("");
+ let h="";
+ if(view==="draw"){
+  if(busy)h=`<div class="msg">Recherche sur Wikipédia, Wikidata et GBIF…</div>`;
+  else{
+   if(note)h+=`<div class="msg">${esc(note)}</div>`;
+   if(last)h+=`<p class="q">Nouvelle carte obtenue !</p>`+card(S.cards[last]);
+   h+=left()?(packs()?`<button class="btn" data-a="draw">Ouvrir un booster (${packs()} / 5 aujourd’hui)</button>`:`<div class="msg">Limite atteinte : 5 boosters par jour. Reviens demain.</div>`):`<div class="msg">Tous les animaux de la liste sont découverts.</div>`;
+  }
+ }else if(view==="col"){
+  if(det)h=`<button class="btn alt" data-a="back" style="margin:0 0 12px">Retour à la collection</button>`+card(S.cards[det]);
+  else h=o?`<div class="grid">`+owned().map(k=>{const c=S.cards[k];return `<button class="tile ${RK(c.u)[1]}" data-a="open" data-k="${esc(k)}">${c.img?`<img class="thumb" src="${esc(c.img)}" alt="" loading="lazy">`:""}${esc(c.fr)}</button>`}).join("")+`</div>`:`<div class="msg">Aucune carte pour l’instant. Ouvre un booster.</div>`;
+ }else{
+  if(!o)h=`<div class="msg">Aucune carte à réviser. Ouvre d’abord un booster.</div>`;
+  else{
+   if(!rv)startRev(false);
+   if(rv.i>=rv.q.length)h=`<div class="msg">${rv.tot?`Session terminée : ${rv.ok} / ${rv.tot} cartes sues.`:"Rien à réviser pour l’instant."}</div><button class="btn" data-a="all">Réviser toutes mes cartes</button>`;
+   else{
+    const k=rv.q[rv.i],c=S.cards[k];
+    h=`<div class="prog"><span>Carte ${rv.i+1} / ${rv.q.length}</span><span>Boîte ${S.owned[k].b} / 5</span></div>`;
+    if(rv.show)h+=card(c)+`<div class="row"><button class="btn bad" data-a="ko">À revoir</button><button class="btn" data-a="ok">Je savais</button></div>`;
+    else if(rv.t===0)h+=`<div class="card"><p class="q">Quel est cet animal ? Donne son nom commun et son nom scientifique.</p>${c.img?`<img class="ph" src="${esc(c.img)}" alt="">`:""}${map(c)}<p class="sci">${esc(c.desc||"")}</p></div><button class="btn" data-a="show">Voir la réponse</button>`;
+    else h+=`<div class="card"><h2>${esc(c.fr)}</h2><p class="q">Donne son nom scientifique, sa classification, sa répartition et son statut UICN.</p></div><button class="btn" data-a="show">Voir la réponse</button>`;
+   }
+  }
+ }
+ $("app").innerHTML=h;
+}
+document.addEventListener("click",e=>{
+ const b=e.target.closest("[data-a]");if(!b)return;
+ const a=b.dataset.a;
+ if(a==="say"){speak(b.dataset.k,b.dataset.l);return}
+ if(a==="draw"){draw();return}
+ if(a==="tab"){view=b.dataset.v;det=null;if(view==="rev")startRev(false)}
+ else if(a==="open")det=b.dataset.k;
+ else if(a==="back")det=null;
+ else if(a==="show")rv.show=true;
+ else if(a==="all")startRev(true);
+ else if(a==="ok"||a==="ko"){
+  const k=rv.q[rv.i],s=S.owned[k];
+  if(a==="ok"){s.b=Math.min(5,s.b+1);rv.ok++}else s.b=1;
+  s.d=Date.now()+IV[s.b-1]*864e5;save();
+  rv.i++;rv.show=false;rv.t=Math.random()<.5?0:1;
+ }
+ render();window.scrollTo(0,0);
+});
+render();
+</script></body></html>
